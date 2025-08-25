@@ -26,26 +26,26 @@ game-license-server/
 ├── .env
 ├── game.db
 ├── db/
-│   └── db.js          # подключение к SQLite
+│ └── db.js
 ├── middleware/
-│   ├── auth.js        # проверка токена JWT
-│   └── requireAdmin.js # проверка роли админа
+│ ├── auth.js
+│ └── requireAdmin.js
 ├── models/
-│   └── User.js        # модель пользователя (связь с БД)
+│ └── User.js
 ├── routes/
-│   ├── auth.js        # регистрация, вход, обновление токенов
-│   ├── users.js       # управление пользователями (админка)
-│   └── licenses.js    # работа с лицензиями (активация, проверка)
+│ ├── auth.js
+│ ├── users.js
+│ └── licenses.js
 ├── utils/
-│   ├── generateTokens.js  # генерация JWT токенов
-│   └── addUser.js         # утилита для добавления пользователей
-├── frontend/          # админ-панель (например, Vite + React)
-│   ├── index.html
-│   ├── src/
-│   └── vite.config.js
-└── unity-sdk/         # скрипты для Unity (C#)
-    ├── LicenseChecker.cs
-    └── NetworkManager.cs
+│ ├── generateTokens.js
+│ └── addUser.js
+├── frontend/
+│ ├── index.html
+│ ├── src/
+│ └── vite.config.js
+└── unity-sdk/
+├── LicenseChecker.cs
+└── NetworkManager.cs
 
 
 

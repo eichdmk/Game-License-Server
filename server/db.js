@@ -1,3 +1,4 @@
+// db.js
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import bcrypt from 'bcrypt';
@@ -8,45 +9,34 @@ export const connectDB = async () => {
     driver: sqlite3.Database
   });
 
+  // Создаём таблицу с новыми полями
   await db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    licenseEndDate INTEGER DEFAULT 0,
-    isAdmin INTEGER DEFAULT 0
-  )
-`);
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      firstName TEXT NOT NULL,
+      lastName TEXT NOT NULL,
+      phone TEXT,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      licenseEndDate INTEGER NOT NULL,
+      isAdmin INTEGER DEFAULT 0
+    )
+  `);
 
-  // Проверка колонки licenseDays
-  const columns = await db.all("PRAGMA table_info(users)");
-  const hasLicenseDays = columns.some(col => col.name === 'licenseDays');
-  if (!hasLicenseDays) {
-    await db.exec("ALTER TABLE users ADD COLUMN licenseDays INTEGER DEFAULT 7");
-    console.log('✅ Колонка licenseDays добавлена');
-  }
-
-  // Проверка колонки isAdmin
-  const hasIsAdmin = columns.some(col => col.name === 'isAdmin');
-  if (!hasIsAdmin) {
-    await db.exec("ALTER TABLE users ADD COLUMN isAdmin INTEGER DEFAULT 0");
-    console.log('✅ Колонка isAdmin добавлена');
-  }
-
-  // Создаём админа, если его нет
+  // Проверяем, есть ли админ
   const admin = await db.get("SELECT * FROM users WHERE isAdmin = 1");
   if (!admin) {
     const hashed = await bcrypt.hash("admin123", 10);
+    const oneYearFromNow = Date.now() + 365 * 86400000; // 1 год
+
     await db.run(
-      `INSERT INTO users (username, password, licenseEndDate, isAdmin)
-     VALUES (?, ?, ?, ?)`,
-      ["admin", hashed, Date.now() + 30 * 86400000, 1]
+      `INSERT INTO users (firstName, lastName, phone, email, password, licenseEndDate, isAdmin)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ["Админ", "Админов", "+79991234567", "admin@game.com", hashed, oneYearFromNow, 1]
     );
-    console.log("✅ Админ создан: admin / admin123");
+    console.log("✅ Админ создан: admin@game.com / admin123");
   }
 
-
   console.log('✅ SQLite подключена (game.db)');
-
   return db;
 };

@@ -1,3 +1,4 @@
+// AdminLogin.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminPanel.css";
@@ -5,7 +6,7 @@ import "./AdminPanel.css";
 const API_URL = "http://localhost:5000";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState(""); // ✅ Заменили username на email
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [isError, setIsError] = useState(false);
@@ -18,13 +19,13 @@ const AdminLogin = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!username || !password) return handleStatus("Заполните все поля", true);
+    if (!email || !password) return handleStatus("Заполните все поля", true);
 
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }), // ✅ Отправляем email
       });
 
       const data = await response.json();
@@ -36,27 +37,29 @@ const AdminLogin = () => {
       } else {
         handleStatus(data.error || "Ошибка входа", true);
       }
-    } catch {
+    } catch (err) {
+      console.error("Ошибка подключения:", err);
       handleStatus("Ошибка подключения к серверу", true);
     }
   };
-
 
   return (
     <div className="admin-container">
       <form onSubmit={handleLogin} className="login-form">
         <h2>🔐 Вход администратора</h2>
         <input
-          type="text"
-          placeholder="Логин"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
         />
         <input
           type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
         />
         <button type="submit">Войти</button>
         {status && (
@@ -67,4 +70,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default AdminLogin;  

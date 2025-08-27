@@ -1,12 +1,15 @@
+// AdminPanel.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import "./AdminPanel.css";
 
 const AdminPanel = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState(""); // ✅ email вместо username
   const [password, setPassword] = useState("");
-  const [newUsername, setNewUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [licenseDays, setLicenseDays] = useState("");
   const [users, setUsers] = useState([]);
@@ -58,23 +61,24 @@ const AdminPanel = () => {
   const handleLogin = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!username || !password) return handleStatus("Заполните все поля", true);
+      if (!email || !password) return handleStatus("Заполните все поля", true);
 
       try {
-        const data = await api.login(username, password);
-        localStorage.setItem("token", data.token);
+        const data = await api.post("/login", { email, password });
+        localStorage.setItem("token", data.data.token);
 
         const userResponse = await api.get("/users/me", {
-          headers: { Authorization: `Bearer ${data.token}` },
+          headers: { Authorization: `Bearer ${data.data.token}` },
         });
         setCurrentUser(userResponse.data);
-        handleStatus(`Добро пожаловать, ${userResponse.data.username}!`);
+        handleStatus(`Добро пожаловать, ${userResponse.data.firstName}!`);
       } catch (err) {
-        handleStatus(err.response?.data?.error || "Ошибка подключения", true);
+        const errorMsg = err.response?.data?.error || "Ошибка подключения";
+        handleStatus(errorMsg, true);
         localStorage.removeItem("token");
       }
     },
-    [username, password, handleStatus]
+    [email, password, handleStatus]
   );
 
   // Загрузка пользователей
@@ -99,31 +103,40 @@ const AdminPanel = () => {
   const handleAddUser = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!newUsername || !newPassword || !licenseDays)
+      if (!firstName || !lastName || !email || !newPassword || !licenseDays)
         return handleStatus("Заполните все поля", true);
+
+      const days = parseInt(licenseDays);
+      if (isNaN(days) || days <= 0) return handleStatus("Количество дней должно быть числом", true);
 
       try {
         await api.post(
           "/add-user",
           {
-            username: newUsername,
+            firstName,
+            lastName,
+            phone,
+            email,
             password: newPassword,
-            licenseDays: parseInt(licenseDays),
+            licenseDays: days,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        handleStatus(`Игрок ${newUsername} добавлен!`);
-        setNewUsername("");
+        handleStatus(`Игрок ${firstName} добавлен!`);
+        setFirstName("");
+        setLastName("");
+        setPhone("");
+        setEmail("");
         setNewPassword("");
         setLicenseDays("");
         loadUsers();
       } catch (err) {
-        handleStatus(err.response?.data?.error || "Ошибка", true);
+        handleStatus(err.response?.data?.error || "Ошибка при добавлении", true);
       }
     },
-    [newUsername, newPassword, licenseDays, token, handleStatus, loadUsers]
+    [firstName, lastName, phone, email, newPassword, licenseDays, token, handleStatus, loadUsers]
   );
 
   // Удаление игрока
@@ -147,7 +160,7 @@ const AdminPanel = () => {
   const handleUpdateLicense = useCallback(
     async (id) => {
       const days = parseInt(editLicenseDays[id]);
-      // if (!days || days < 1) return handleStatus("Введите корректное количество дней", true);
+      if (isNaN(days) || days <= 0) return handleStatus("Введите корректное количество дней", true);
 
       try {
         await api.put(
@@ -173,16 +186,15 @@ const AdminPanel = () => {
 
   if (isLoading) return <div className="loading">Загрузка...</div>;
 
-  // Если нет токена → форма входа
   if (!token || !currentUser) {
     return (
       <form onSubmit={handleLogin} className="login-form">
         <h2>🔐 Вход администратора</h2>
         <input
-          type="text"
-          placeholder="Логин"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
@@ -199,57 +211,67 @@ const AdminPanel = () => {
   // 🔹 Если пользователь НЕ админ → показываем его данные
   if (!currentUser.isAdmin) {
     const now = Date.now();
-    const licenseEnd = Number(currentUser.licenseEndDate);
-
-    // Проверяем, если timestamp в секундах → конвертируем
-    const endDate = licenseEnd < 1e12 ? licenseEnd * 1000 : licenseEnd;
-
-    // Вычисляем разницу
+    const endDate = Number(currentUser.licenseEndDate);
     const diffMs = endDate - now;
-    const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+    const diffDays = Math.max(0, Math.floor(diffMs / 86400000));
 
     return (
       <div className="user-dashboard">
         <div className="user-card">
           <h2>👤 Личный кабинет</h2>
           <div className="user-info-box">
-            <p><strong>Логин:</strong> {currentUser.username}</p>
+            <p><strong>Имя:</strong> {currentUser.firstName}</p>
+            <p><strong>Фамилия:</strong> {currentUser.lastName}</p>
+            <p><strong>Email:</strong> {currentUser.email}</p>
+            <p><strong>Телефон:</strong> {currentUser.phone || "не указан"}</p>
             <p><strong>Дата окончания:</strong> {new Date(endDate).toLocaleString()}</p>
             <p className={diffMs > 0 ? "status-active" : "status-expired"}>
               <strong>Статус:</strong> {diffMs > 0 ? "✅ Активна" : "⛔ Истекла"}
             </p>
             <p><strong>Осталось:</strong> {diffDays} дней</p>
           </div>
-          <button onClick={handleLogout} className="logout-btn">
-            🚪 Выйти
-          </button>
+          <button onClick={handleLogout} className="logout-btn">🚪 Выйти</button>
         </div>
       </div>
     );
   }
 
-
-
-  // 🔹 Если админ → показываем панель управления
+  // 🔹 Если админ → панель управления
   return (
     <div className="admin-container">
       <div className="admin-panel">
         <div className="header">
           <h2>🎮 Панель управления</h2>
           <div className="user-info">
-            <span>Администратор: {currentUser.username}</span>
-            <button onClick={handleLogout} className="logout-btn">
-              Выйти
-            </button>
+            <span>Администратор: {currentUser.firstName}</span>
+            <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
         </div>
 
         <form onSubmit={handleAddUser} className="add-user-form">
           <input
             type="text"
-            placeholder="Новый логин"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
+            placeholder="Имя"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Фамилия"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          <input
+            type="tel"
+            placeholder="Телефон"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
@@ -266,9 +288,7 @@ const AdminPanel = () => {
           <button type="submit" className="add-btn">➕ Добавить игрока</button>
         </form>
 
-        <button onClick={loadUsers} className="show-users-btn">
-          📚 Показать всех игроков
-        </button>
+        <button onClick={loadUsers} className="show-users-btn"> Показать всех пользователей</button>
 
         {showUsers && (
           <div className="users-table">
@@ -278,7 +298,10 @@ const AdminPanel = () => {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Логин</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Телефон</th>
+                    <th>Email</th>
                     <th>Лицензия</th>
                     <th>Админ</th>
                     <th>Действия</th>
@@ -289,19 +312,20 @@ const AdminPanel = () => {
                     const today = new Date();
                     const licenseEnd = user.licenseEndDate ? new Date(user.licenseEndDate) : null;
                     const diffDays = licenseEnd
-                      ? Math.ceil((licenseEnd - today) / (1000 * 60 * 60 * 24))
+                      ? Math.ceil((licenseEnd - today) / 86400000)
                       : 0;
 
                     return (
                       <tr key={user.id}>
                         <td>{user.id}</td>
-                        <td>{user.username}</td>
+                        <td>{user.firstName}</td>
+                        <td>{user.lastName}</td>
+                        <td>{user.phone}</td>
+                        <td>{user.email}</td>
                         <td>{diffDays > 0 ? `${diffDays} дней` : "⛔ Истекла"}</td>
                         <td>{user.isAdmin ? "✅" : "❌"}</td>
                         <td>
-                          <button onClick={() => handleDeleteUser(user.id)} className="delete-btn">
-                            🗑 Удалить
-                          </button>
+                          <button onClick={() => handleDeleteUser(user.id)} className="delete-btn">🗑 Удалить</button>
                           <input
                             type="number"
                             placeholder="Дни"

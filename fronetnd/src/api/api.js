@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://83.166.245.123:5000",
 });
 
 // Добавляем токен в каждый запрос

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminPanel.css";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://83.166.245.123:5000";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState(""); // ✅ Заменили username на email

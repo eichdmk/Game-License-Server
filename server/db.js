@@ -9,7 +9,6 @@ export const connectDB = async () => {
     driver: sqlite3.Database
   });
 
-  // Создаём таблицу с новыми полями
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +19,19 @@ export const connectDB = async () => {
       password TEXT NOT NULL,
       licenseEndDate INTEGER NOT NULL,
       isAdmin INTEGER DEFAULT 0
+    )
+  `);
+
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS login_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId INTEGER,
+      email TEXT,
+      ip TEXT NOT NULL,
+      success INTEGER NOT NULL,
+      userAgent TEXT,
+      createdAt INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id)
     )
   `);
 

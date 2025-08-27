@@ -20,6 +20,8 @@ const AdminPanel = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [loginLogs, setLoginLogs] = useState([]);
+
 
   const token = localStorage.getItem("token");
 
@@ -27,6 +29,18 @@ const AdminPanel = () => {
     setStatus(message);
     setIsError(error);
   }, []);
+
+
+  const loadLoginLogs = async () => {
+    try {
+      const response = await api.get('/login-logs', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLoginLogs(response.data);
+    } catch (err) {
+      handleStatus('Не удалось загрузить логи', true);
+    }
+  };
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
@@ -236,129 +250,170 @@ const AdminPanel = () => {
     );
   }
 
-  // 🔹 Если админ → панель управления
-  return (
-    <div className="admin-container">
-      <div className="admin-panel">
-        <div className="header">
-          <h2>🎮 Панель управления</h2>
-          <div className="user-info">
-            <span>Администратор: {currentUser.firstName}</span>
-            <button onClick={handleLogout} className="logout-btn">Выйти</button>
-          </div>
+// 🔹 Если админ → панель управления
+return (
+  <div className="admin-container">
+    <div className="admin-panel">
+      <div className="header">
+        <h2>🎮 Панель управления</h2>
+        <div className="user-info">
+          <span>Администратор: {currentUser.firstName}</span>
+          <button onClick={handleLogout} className="logout-btn">Выйти</button>
         </div>
-
-        <form onSubmit={handleAddUser} className="add-user-form">
-          <input
-            type="text"
-            placeholder="Имя"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Фамилия"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-          <input
-            type="tel"
-            placeholder="Телефон"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Пароль"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Срок лицензии (дней)"
-            value={licenseDays}
-            onChange={(e) => setLicenseDays(e.target.value)}
-          />
-          <button type="submit" className="add-btn">➕ Добавить игрока</button>
-        </form>
-
-        <button onClick={loadUsers} className="show-users-btn"> Показать всех пользователей</button>
-
-        {showUsers && (
-          <div className="users-table">
-            <h3>👥 Все игроки</h3>
-            {users.length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Имя</th>
-                    <th>Фамилия</th>
-                    <th>Телефон</th>
-                    <th>Email</th>
-                    <th>Лицензия</th>
-                    <th>Админ</th>
-                    <th>Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => {
-                    const today = new Date();
-                    const licenseEnd = user.licenseEndDate ? new Date(user.licenseEndDate) : null;
-                    const diffDays = licenseEnd
-                      ? Math.ceil((licenseEnd - today) / 86400000)
-                      : 0;
-
-                    return (
-                      <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.firstName}</td>
-                        <td>{user.lastName}</td>
-                        <td>{user.phone}</td>
-                        <td>{user.email}</td>
-                        <td>{diffDays > 0 ? `${diffDays} дней` : "⛔ Истекла"}</td>
-                        <td>{user.isAdmin ? "✅" : "❌"}</td>
-                        <td>
-                          <button onClick={() => handleDeleteUser(user.id)} className="delete-btn">🗑 Удалить</button>
-                          <input
-                            type="number"
-                            placeholder="Дни"
-                            value={editLicenseDays[user.id] || ""}
-                            onChange={(e) =>
-                              setEditLicenseDays({
-                                ...editLicenseDays,
-                                [user.id]: e.target.value,
-                              })
-                            }
-                            style={{ width: "70px", marginLeft: "10px" }}
-                          />
-                          <button
-                            className="update-btn"
-                            onClick={() => handleUpdateLicense(user.id)}
-                          >
-                            🔄 Обновить
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ) : (
-              <p>Нет игроков для отображения</p>
-            )}
-          </div>
-        )}
       </div>
-      {status && <div className={`status ${isError ? "error" : "success"}`}>{status}</div>}
-    </div>
-  );
-};
 
+      <form onSubmit={handleAddUser} className="add-user-form">
+        <input
+          type="text"
+          placeholder="Имя"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Фамилия"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+        <input
+          type="tel"
+          placeholder="Телефон"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Пароль"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Срок лицензии (дней)"
+          value={licenseDays}
+          onChange={(e) => setLicenseDays(e.target.value)}
+        />
+        <button type="submit" className="add-btn">➕ Добавить игрока</button>
+      </form>
+
+      {/* Кнопки для загрузки данных */}
+      <button onClick={loadUsers} className="show-users-btn">
+        👥 Показать всех пользователей
+      </button>
+
+      {/* ✅ Кнопка для логов — ВНЕ блока с отображением */}
+      <button onClick={loadLoginLogs} className="show-users-btn">
+        🕵️ Показать логи входов
+      </button>
+
+      {/* Таблица пользователей */}
+      {showUsers && (
+        <div className="users-table">
+          <h3>👥 Все игроки</h3>
+          {users.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Имя</th>
+                  <th>Фамилия</th>
+                  <th>Телефон</th>
+                  <th>Email</th>
+                  <th>Лицензия</th>
+                  <th>Админ</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => {
+                  const today = new Date();
+                  const licenseEnd = user.licenseEndDate ? new Date(user.licenseEndDate) : null;
+                  const diffDays = licenseEnd
+                    ? Math.ceil((licenseEnd - today) / 86400000)
+                    : 0;
+
+                  return (
+                    <tr key={user.id}>
+                      <td>{user.id}</td>
+                      <td>{user.firstName}</td>
+                      <td>{user.lastName}</td>
+                      <td>{user.phone}</td>
+                      <td>{user.email}</td>
+                      <td>{diffDays > 0 ? `${diffDays} дней` : "⛔ Истекла"}</td>
+                      <td>{user.isAdmin ? "✅" : "❌"}</td>
+                      <td>
+                        <button onClick={() => handleDeleteUser(user.id)} className="delete-btn">
+                          🗑 Удалить
+                        </button>
+                        <input
+                          type="number"
+                          placeholder="Дни"
+                          value={editLicenseDays[user.id] || ""}
+                          onChange={(e) =>
+                            setEditLicenseDays({
+                              ...editLicenseDays,
+                              [user.id]: e.target.value,
+                            })
+                          }
+                          style={{ width: "70px", marginLeft: "10px" }}
+                        />
+                        <button
+                          className="update-btn"
+                          onClick={() => handleUpdateLicense(user.id)}
+                        >
+                          🔄 Обновить
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p>Нет игроков для отображения</p>
+          )}
+        </div>
+      )}
+
+      {/* Таблица логов — отдельно */}
+      {loginLogs.length > 0 && (
+        <div className="users-table">
+          <h3>🔐 Логи входов</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Время</th>
+                <th>Пользователь</th>
+                <th>Email</th>
+                <th>IP</th>
+                <th>Устройство</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loginLogs.map((log) => (
+                <tr key={log.id}>
+                  <td>{log.createdAt}</td>
+                  <td>{log.firstName} {log.lastName}</td>
+                  <td>{log.email}</td>
+                  <td>{log.ip}</td>
+                  <td>{log.userAgent?.substring(0, 30)}...</td>
+                  <td>{log.success ? "✅ Успешно" : "❌ Ошибка"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+
+    {status && <div className={`status ${isError ? "error" : "success"}`}>{status}</div>}
+  </div>
+)}
 export default AdminPanel;

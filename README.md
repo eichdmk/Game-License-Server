@@ -38,7 +38,10 @@ npm install
 Создайте файл .env:
 
 JWT_SECRET=your_secret_key
-PORT=3000
+PORT=5000
+
+
+Запустите сервер:
 
 
 Запустите сервер:
@@ -46,13 +49,11 @@ PORT=3000
 npm start
 
 
-По умолчанию сервер доступен по адресу:
-👉 http://localhost:3000
 
 ## 🔌 API Endpoints
 1. Auth
 
-POST /auth/login — вход в систему
+POST /login — вход в систему
 
 📥 Request:
 
@@ -85,7 +86,7 @@ Authorization: Bearer <TOKEN>
 
 {
   "id": 9,
-  "username": "testLuna",
+  "username": "testUser",
   "isAdmin": false,
   "licenseEndDate": 1756224974529,
   "licenseLeftSeconds": 84307,

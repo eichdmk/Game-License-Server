@@ -16,7 +16,7 @@ export const requireAdmin = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error('❌ Ошибка в requireAdmin:', err);
+    console.error('Ошибка в requireAdmin:', err);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 };

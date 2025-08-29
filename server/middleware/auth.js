@@ -14,23 +14,16 @@ export const authenticateToken = async (req, res, next) => {
       if (err) return res.status(403).json({ error: 'Недействительный токен' });
 
       if (!db) db = await connectDB();
-      const user = await db.get('SELECT * FROM users WHERE id = ?', [decoded.id]);
+      const user = await db.get('SELECT id, firstName, lastName, email, phone, isAdmin, licenseEndDate FROM users WHERE id = ?', [decoded.id]);
 
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
 
-      // 🔒 Проверяем, не истекла ли лицензия
-      const now = Date.now();
-      if (user.licenseEndDate <= now) {
-        return res.status(403).json({ error: 'Срок вашей лицензии истёк. Доступ запрещён.' });
-      }
-
-      req.user = decoded;
+      req.user = user; 
       next();
     });
+
   } catch (err) {
-    console.error('❌ Ошибка в authenticateToken:', err);
+    console.error('Ошибка в authenticateToken:', err);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 };

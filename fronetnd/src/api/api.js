@@ -2,10 +2,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://83.166.245.123:5000",
+  baseURL: "http://localhost:5000",
+  withCredentials: false // если будешь использовать cookies — включи
 });
 
-// Добавляем токен в каждый запрос
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -14,9 +14,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Экспортируем готовые методы
-export const login = async (username, password) => {
-  const { data } = await api.post("/login", { username, password });
+// Экспортируем методы
+export const login = async (email, password) => {
+  const { data } = await api.post("/login", { email, password });
   return data;
 };
 
@@ -25,8 +25,8 @@ export const getUsers = async () => {
   return data;
 };
 
-export const addUser = async (username, password, licenseDays) => {
-  const { data } = await api.post("/add-user", { username, password, licenseDays });
+export const addUser = async (userData) => {
+  const { data } = await api.post("/add-user", userData);
   return data;
 };
 

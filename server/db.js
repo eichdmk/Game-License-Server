@@ -37,15 +37,15 @@ export const connectDB = async () => {
 
   const admin = await db.get("SELECT * FROM users WHERE isAdmin = 1");
   if (!admin) {
-    const hashed = await bcrypt.hash("Igeref06", 10);
+    const hashed = await bcrypt.hash("testPassword", 10);
     const oneYearFromNow = Date.now() + 365 * 86400000;
 
     await db.run(
       `INSERT INTO users (firstName, lastName, phone, email, password, licenseEndDate, isAdmin)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ["Админ", "Админов", "+79991234567", "luna@mail.ru", hashed, oneYearFromNow, 1]
+      ["Админ", "Админов", "+79991234567", "TestUser@mail.ru", hashed, oneYearFromNow, 1]
     );
-    console.log("Админ создан: luna@mail.ru / Igeref06");
+    console.log("Админ создан: TestUser@mail.ru / testPassword");
   }
 
   console.log('SQLite подключена (game.db)');

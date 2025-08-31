@@ -221,7 +221,7 @@ const AdminPanel = () => {
     );
   }
 
-  //  Если пользователь НЕ админ → показываем его данные
+
   if (!currentUser.isAdmin) {
     const now = Date.now();
     const endDate = Number(currentUser.licenseEndDate);
@@ -229,34 +229,33 @@ const AdminPanel = () => {
     const diffDays = Math.max(0, Math.floor(diffMs / 86400000));
 
     return (
-      <div className="user-dashboard">
-        <div className="user-card">
-          <h2>👤 Личный кабинет</h2>
-          <div className="user-info-box">
-            <p><strong>Имя:</strong> {currentUser.firstName}</p>
-            <p><strong>Фамилия:</strong> {currentUser.lastName}</p>
-            <p><strong>Email:</strong> {currentUser.email}</p>
-            <p><strong>Телефон:</strong> {currentUser.phone || "не указан"}</p>
-            <p><strong>Дата окончания:</strong> {new Date(endDate).toLocaleString()}</p>
-            <p className={diffMs > 0 ? "status-active" : "status-expired"}>
-              <strong>Статус:</strong> {diffMs > 0 ? "✅ Активна" : "⛔ Истекла"}
-            </p>
-            <p><strong>Осталось:</strong> {diffDays} дней</p>
-          </div>
-          <button onClick={handleLogout} className="logout-btn">🚪 Выйти</button>
+      <div className="user-card-page">
+        <button onClick={handleLogout} className="back-btn">🚪 Выйти</button>
+        <h2>👤 Личный кабинет</h2>
+        <div className="user-info">
+          <p><strong>Имя:</strong> {currentUser.firstName}</p>
+          <p><strong>Фамилия:</strong> {currentUser.lastName}</p>
+          <p><strong>Email:</strong> {currentUser.email}</p>
+          <p><strong>Телефон:</strong> {currentUser.phone || "—"}</p>
+          <p><strong>Лицензия до:</strong> {new Date(endDate).toLocaleString()}</p>
+          <p className={diffMs > 0 ? "status-active" : "status-expired"}>
+            <strong>Статус:</strong> {diffMs > 0 ? "✅ Активна" : "⛔ Истекла"}
+          </p>
+          <p><strong>Осталось:</strong> {diffDays} дней</p>
         </div>
+
+      
       </div>
     );
   }
 
-  // Если админ → панель управления
   return (
     <div className="admin-container">
       <div className="admin-panel">
         <div className="header">
           <h2>Панель управления</h2>
           <div className="user-info">
-            <span style={{color: 'black'}}>Администратор: {currentUser.firstName}</span>
+            <span style={{ color: 'black' }}>Администратор: {currentUser.firstName}</span>
             <button onClick={handleLogout} className="logout-btn">Выйти</button>
           </div>
         </div>
@@ -302,7 +301,7 @@ const AdminPanel = () => {
         </form>
 
         <button onClick={loadUsers} className="show-users-btn">
-           Показать всех пользователей
+          Показать всех пользователей
         </button>
 
         <button onClick={loadLoginLogs} className="show-users-btn">

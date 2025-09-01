@@ -1,0 +1,26 @@
+.chart-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+.chart-card h3 {
+  margin: 0 0 1.5rem;
+  color: #212529;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .chart-card {
+    padding: 1rem;
+  }
+  
+  .chart-card h3 {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,162 @@
+.user-table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #6c757d;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.user-table tr.expiring td {
+  background-color: #fffbeb;
+}
+
+.user-table tr.expired td {
+  background-color: #fee2e2;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.license-input {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.license-input input {
+  width: 70px;
+  padding: 0.4rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.btn {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c11b1b;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--secondary);
+}
+
+.btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.btn-secondary:hover {
+  background: #dee2e6;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  margin: 0 auto 1.5rem;
+  width: 64px;
+  height: 64px;
+  background: #f8fafc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem;
+  color: #212529;
+  font-size: 1.25rem;
+}
+
+.empty-state p {
+  color: #6c757d;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .user-table {
+    font-size: 0.9rem;
+  }
+  
+  .user-table th,
+  .user-table td {
+    padding: 0.5rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .license-input {
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+  }
+  
+  .license-input input {
+    width: 100%;
+  }
+  
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+}

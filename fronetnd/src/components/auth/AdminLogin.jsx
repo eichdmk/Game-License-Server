@@ -1,8 +1,8 @@
-// AdminLogin.jsx
+// src/components/auth/AdminLogin.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/api";
-import "./AdminPanel.css";
+import { login } from "../../api/api";
+import "./AdminLogin.css";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -52,7 +52,7 @@ const AdminLogin = () => {
           autoComplete="current-password"
         />
         <button type="submit">Войти</button>
-        {status && <div className={`status ${isError ? "error" : "success"}`}>{status}</div>}
+        {status && <div className={`status ${isError ? "log_error" : "log_success"}`}>{status}</div>}
       </form>
     </div>
   );

@@ -1,0 +1,92 @@
+// Sidebar.jsx
+import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FaChartLine, FaRobot, FaSearch, FaShieldAlt, FaSignOutAlt } from "react-icons/fa";
+import "./Sidebar.css";
+
+const Sidebar = ({ isOpen, onClose, currentUser, onLogout }) => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    onClose();
+  };
+
+  return (
+    <div className={`sidebar ${isOpen ? "open" : ""}`}>
+      <div className="sidebar-header">
+        <div className="user-profile">
+          <div className="avatar">
+            {currentUser.firstName[0]}{currentUser.lastName[0]}
+          </div>
+          <div className="user-info">
+            <h3>{currentUser.firstName} {currentUser.lastName}</h3>
+            <p className="role">Администратор</p>
+          </div>
+        </div>
+      </div>
+
+      <nav className="sidebar-nav">
+        <ul>
+          <li>
+            <NavLink 
+              to="/admin" 
+              onClick={() => handleNavigation("/admin")}
+              className={({ isActive }) => isActive ? "active" : ""}
+            >
+              <FaChartLine /> Панель управления
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/admin/users" 
+              onClick={() => handleNavigation("/admin/users")}
+            >
+              <FaChartLine /> Пользователи
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/admin/analytics" 
+              onClick={() => handleNavigation("/admin/analytics")}
+            >
+              <FaChartLine /> Аналитика
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/admin/ai" 
+              onClick={() => handleNavigation("/admin/ai")}
+            >
+              <FaRobot /> ИИ-ассистент
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/admin/logs" 
+              onClick={() => handleNavigation("/admin/logs")}
+            >
+              <FaSearch /> Логи
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/admin/ip" 
+              onClick={() => handleNavigation("/admin/ip")}
+            >
+              <FaShieldAlt /> IP-блокировки
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+
+      <div className="sidebar-footer">
+        <button onClick={onLogout} className="logout-button">
+          <FaSignOutAlt /> Выйти
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;

@@ -1,0 +1,71 @@
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* значение и заголовок уйдут в ряд */
+  gap: 1rem;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-icon {
+  font-size: 2rem;
+  color: var(--primary, #4f46e5);
+  flex-shrink: 0;
+}
+
+.stats-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* выравнивание справа */
+}
+
+.stats-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.stats-title {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .stats-info {
+    align-items: flex-start;
+  }
+
+  .stats-value {
+    font-size: 1.3rem;
+  }
+
+  .stats-title {
+    font-size: 0.85rem;
+  }
+}

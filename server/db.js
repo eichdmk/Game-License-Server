@@ -35,6 +35,16 @@ export const connectDB = async () => {
     )
   `);
 
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS blocked_ips (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ip TEXT UNIQUE NOT NULL,
+      reason TEXT,
+      blockedAt INTEGER NOT NULL,
+      expiresAt INTEGER
+    )
+  `);
+
   const admin = await db.get("SELECT * FROM users WHERE isAdmin = 1");
   if (!admin) {
     const hashed = await bcrypt.hash("testPassword", 10);

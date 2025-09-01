@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaChartLine, FaRobot, FaSearch, FaShieldAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaChartLine, FaRobot, FaSearch, FaShieldAlt, FaSignOutAlt,FaUsers  } from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = ({ isOpen, onClose, currentUser, onLogout }) => {
@@ -29,20 +29,16 @@ const Sidebar = ({ isOpen, onClose, currentUser, onLogout }) => {
       <nav className="sidebar-nav">
         <ul>
           <li>
-            <NavLink 
-              to="/admin" 
-              onClick={() => handleNavigation("/admin")}
-              className={({ isActive }) => isActive ? "active" : ""}
-            >
-              <FaChartLine /> Панель управления
-            </NavLink>
+            <div >
+               Панель управления
+            </div>
           </li>
           <li>
             <NavLink 
               to="/admin/users" 
               onClick={() => handleNavigation("/admin/users")}
             >
-              <FaChartLine /> Пользователи
+              <FaUsers  /> Пользователи
             </NavLink>
           </li>
           <li>

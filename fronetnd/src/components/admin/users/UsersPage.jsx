@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import UserForm from "./UserForm";
 import UserTable from "./UserTable";
 import SearchFilter from "../../common/SearchFilter";
-import { getUsers, deleteUser, updateLicense } from "../../../api/api";
+import { getUsers, deleteUser, updateLicense, exportUsers } from "../../../api/api";
 import "./UsersPage.css";
+
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -33,18 +34,18 @@ const UsersPage = () => {
 
   const handleSearch = () => {
     let filtered = [...users];
-    
+
     // Поиск
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(user => 
+      filtered = filtered.filter(user =>
         user.firstName.toLowerCase().includes(term) ||
         user.lastName.toLowerCase().includes(term) ||
         user.email.toLowerCase().includes(term) ||
         user.phone?.toLowerCase().includes(term)
       );
     }
-    
+
     // Фильтр по статусу
     if (filterStatus !== "all") {
       const now = Date.now();
@@ -56,7 +57,7 @@ const UsersPage = () => {
         return true;
       });
     }
-    
+
     setFilteredUsers(filtered);
   };
 
@@ -72,9 +73,9 @@ const UsersPage = () => {
   };
 
   const handleUserSelect = (userId) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId) 
+    setSelectedUsers(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
   };
@@ -118,16 +119,23 @@ const UsersPage = () => {
       <div className="page-header">
         <h1>👥 Пользователи</h1>
         <div className="header-actions">
-          <button 
-            className="btn btn-primary" 
+          <button
+            className="btn btn-primary"
             onClick={() => setShowForm(!showForm)}
           >
             {showForm ? "Скрыть форму" : "Добавить пользователя"}
           </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => exportUsers("csv")}
+            style={{ marginLeft: "10px" }}
+          >
+            📥 Экспорт CSV
+          </button>
         </div>
       </div>
 
-      <SearchFilter 
+      <SearchFilter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         filterStatus={filterStatus}
@@ -135,9 +143,9 @@ const UsersPage = () => {
       />
 
       {showForm && (
-        <UserForm 
-          onSuccess={loadUsers} 
-          onCancel={() => setShowForm(false)} 
+        <UserForm
+          onSuccess={loadUsers}
+          onCancel={() => setShowForm(false)}
         />
       )}
 
@@ -153,8 +161,8 @@ const UsersPage = () => {
               value={bulkLicenseDays}
               onChange={(e) => setBulkLicenseDays(e.target.value)}
             />
-            <button 
-              onClick={handleBulkUpdate} 
+            <button
+              onClick={handleBulkUpdate}
               className="btn btn-primary"
             >
               Применить ко всем
@@ -163,7 +171,7 @@ const UsersPage = () => {
         </div>
       )}
 
-      <UserTable 
+      <UserTable
         users={filteredUsers}
         onDelete={handleDeleteUser}
         onUpdateLicense={handleUpdateLicense}

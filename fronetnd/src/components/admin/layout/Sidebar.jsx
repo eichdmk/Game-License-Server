@@ -15,7 +15,7 @@ const Sidebar = ({ isOpen, onClose, currentUser, onLogout }) => {
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-header">
-        <div className="user-profile">
+        <div className="nav_user-profile">
           <div className="avatar">
             {currentUser.firstName[0]}{currentUser.lastName[0]}
           </div>

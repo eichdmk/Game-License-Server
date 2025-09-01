@@ -25,8 +25,15 @@ const AdminLogin = () => {
       const data = await login(email, password);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+
       handleStatus("Вход выполнен успешно!");
-      navigate("/admin");
+
+      // ✅ Проверка прав
+      if (data.user.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/users/me");
+      }
     } catch (err) {
       const errorMsg = err.response?.data?.error || "Ошибка подключения";
       handleStatus(errorMsg, true);
@@ -36,7 +43,7 @@ const AdminLogin = () => {
   return (
     <div className="admin-container">
       <form onSubmit={handleLogin} className="login-form">
-        <h2>🔐 Вход администратора</h2>
+        <h2> Вход в аккаунт</h2>
         <input
           type="email"
           placeholder="Email"
@@ -52,7 +59,11 @@ const AdminLogin = () => {
           autoComplete="current-password"
         />
         <button type="submit">Войти</button>
-        {status && <div className={`status ${isError ? "log_error" : "log_success"}`}>{status}</div>}
+        {status && (
+          <div className={`status ${isError ? "log_error" : "log_success"}`}>
+            {status}
+          </div>
+        )}
       </form>
     </div>
   );

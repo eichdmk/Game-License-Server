@@ -1,6 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-// import "./LicenseDistributionChart.css";
+import "./LicenseDistributionChart.css";
 
 const COLORS = ["#00C49F", "#FF8042", "#FFBB28"];
 

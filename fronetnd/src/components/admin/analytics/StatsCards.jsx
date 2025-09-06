@@ -1,5 +1,5 @@
 import React from "react";
-// import "./StatsCards.css";
+import "./StatsCards.css";
 
 const StatsCards = ({ stats }) => {
   if (!stats) return null;
@@ -8,7 +8,7 @@ const StatsCards = ({ stats }) => {
     { title: "Всего лицензий", value: stats.total || 0, icon: "📦" },
     { title: "Активные лицензии", value: stats.active || 0, icon: "✅" },
     { title: "Истекшие лицензии", value: stats.expired || 0, icon: "⛔" },
-    { title: "Пользователи", value: stats.totalUsers || 0, icon: "👥" },
+    { title: "Пользователи", value: stats.total || 0, icon: "👥" },
   ];
 
   return (

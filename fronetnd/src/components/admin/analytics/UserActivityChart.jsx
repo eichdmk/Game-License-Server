@@ -1,6 +1,6 @@
 import React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
-// import "./UserActivityChart.css";
+import "./UserActivityChart.css";
 
 const UserActivityChart = ({ stats }) => {
   if (!stats) return null;

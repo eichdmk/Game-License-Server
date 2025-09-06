@@ -13,7 +13,7 @@ const UserCard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await api.get(`/users/${id}`);
+        const response = await api.get(`admin/users/${id}`);
         setUser(response.data);
       } catch (err) {
         console.error("Ошибка загрузки пользователя:", err);

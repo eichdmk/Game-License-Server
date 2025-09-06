@@ -3,15 +3,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://localhost:5000/api/v1",
   withCredentials: false
 });
 
-// Глобальная обработка ошибок
 api.interceptors.response.use(
   response => response,
   error => {
-    // Обработка ошибок авторизации
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -19,12 +17,15 @@ api.interceptors.response.use(
       return Promise.reject(new Error("Сессия истекла. Пожалуйста, войдите снова."));
     }
 
-    // Обработка ошибок сервера
+    if (error.response?.status === 403) {
+      toast.error("Доступ запрещён. Недостаточно прав.");
+      return Promise.reject(error);
+    }
+
     if (error.response?.status >= 500) {
       toast.error("Ошибка сервера. Попробуйте позже.");
     }
 
-    // Обработка пользовательских ошибок
     const errorMessage = error.response?.data?.error ||
       error.response?.data?.message ||
       "Произошла ошибка при выполнении запроса";
@@ -33,7 +34,6 @@ api.interceptors.response.use(
   }
 );
 
-// Добавляем токен к каждому запросу
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -42,7 +42,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Вспомогательная функция для обработки ошибок
 const handleApiError = (error, defaultMessage) => {
   const message = error.message || defaultMessage;
   toast.error(message);
@@ -50,7 +49,6 @@ const handleApiError = (error, defaultMessage) => {
   throw new Error(message);
 };
 
-// Экспортируем методы
 export const login = async (email, password) => {
   try {
     const { data } = await api.post("/login", { email, password });
@@ -62,7 +60,7 @@ export const login = async (email, password) => {
 
 export const getUsers = async () => {
   try {
-    const { data } = await api.get("/users");
+    const { data } = await api.get("/admin/users");
     return data;
   } catch (error) {
     handleApiError(error, "Не удалось загрузить пользователей");
@@ -71,7 +69,7 @@ export const getUsers = async () => {
 
 export const addUser = async (userData) => {
   try {
-    const { data } = await api.post("/add-user", userData);
+    const { data } = await api.post("/admin/add-user", userData);
     toast.success(`Пользователь ${userData.firstName} добавлен`);
     return data;
   } catch (error) {
@@ -81,7 +79,7 @@ export const addUser = async (userData) => {
 
 export const deleteUser = async (id) => {
   try {
-    const { data } = await api.delete(`/delete-user/${id}`);
+    const { data } = await api.delete(`/admin/delete-user/${id}`);
     toast.success("Пользователь удалён");
     return data;
   } catch (error) {
@@ -91,7 +89,7 @@ export const deleteUser = async (id) => {
 
 export const updateLicense = async (id, licenseDays) => {
   try {
-    const { data } = await api.put(`/update-license/${id}`, { licenseDays });
+    const { data } = await api.put(`/admin/update-license/${id}`, { licenseDays });
     toast.success("Срок лицензии обновлён");
     return data;
   } catch (error) {
@@ -101,12 +99,13 @@ export const updateLicense = async (id, licenseDays) => {
 
 export const getLicenseStats = async () => {
   try {
-    const { data } = await api.get("/license-stats");
+    const { data } = await api.get("/admin/license-stats");
     return data;
   } catch (error) {
     handleApiError(error, "Не удалось загрузить статистику");
   }
 };
+
 
 export const exportUsers = async (format = "csv") => {
   try {
@@ -129,7 +128,6 @@ export const exportUsers = async (format = "csv") => {
   }
 };
 
-// Новые методы для управления IP
 export const getBlockedIPs = async () => {
   try {
     const { data } = await api.get("/admin/blocked-ips");
@@ -158,13 +156,14 @@ export const unblockIP = async (ip) => {
     handleApiError(error, "Ошибка разблокировки IP");
   }
 };
+
 export const getToken = () => {
   return localStorage.getItem("token");
 };
 
 export const getLoginLogs = async () => {
   try {
-    const { data } = await api.get("/login-logs");
+    const { data } = await api.get("/admin/login-logs");
     return data;
   } catch (error) {
     handleApiError(error, "Не удалось загрузить логи входов");
@@ -173,7 +172,7 @@ export const getLoginLogs = async () => {
 
 export const getUserById = async (id) => {
   try {
-    const { data } = await api.get(`/users/${id}`);
+    const { data } = await api.get(`/admin/users/${id}`);
     return data;
   } catch (error) {
     handleApiError(error, "Не удалось загрузить данные пользователя");

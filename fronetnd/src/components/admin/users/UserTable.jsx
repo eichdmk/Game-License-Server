@@ -1,4 +1,3 @@
-// UserTable.jsx
 import React from "react";
 import StatusBadge from "../../common/StatusBadge";
 import "./UserTable.css";
@@ -12,7 +11,7 @@ const UserTable = ({
   onSelectAll,
   onViewDetails
 }) => {
-  if (users.length === 0) {
+  if (!users || users.length === 0) {
     return (
       <div className="empty-state">
         <div className="empty-icon">
@@ -27,6 +26,26 @@ const UserTable = ({
       </div>
     );
   }
+
+  const getLicenseStatus = (licenseEndDateMs) => {
+    if (!licenseEndDateMs) return "expired";
+
+    const now = Date.now();
+    const licenseEnd = Number(licenseEndDateMs);
+
+    if (licenseEnd < now) return "expired";
+
+    const daysLeft = (licenseEnd - now) / (1000 * 60 * 60 * 24);
+    if (daysLeft <= 3) return "expiring"; // меньше 3 дней
+    return "active";
+  };
+
+  const getDaysLeft = (licenseEndDateMs) => {
+    if (!licenseEndDateMs) return 0;
+    const now = Date.now();
+    const licenseEnd = Number(licenseEndDateMs);
+    return Math.ceil((licenseEnd - now) / (1000 * 60 * 60 * 24));
+  };
 
   return (
     <div className="user-table-container">
@@ -52,16 +71,11 @@ const UserTable = ({
         </thead>
         <tbody>
           {users.map((user) => {
-            const today = new Date();
-            const licenseEnd = user.licenseEndDate ? new Date(user.licenseEndDate) : null;
-            const diffDays = licenseEnd
-              ? Math.ceil((licenseEnd - today) / 86400000)
-              : 0;
-            const isExpiring = diffDays > 0 && diffDays <= 3;
-            const isExpired = diffDays <= 0;
+            const status = getLicenseStatus(user.licenseenddate);
+            const daysLeft = getDaysLeft(user.licenseenddate);
 
             return (
-              <tr key={user.id} className={isExpiring ? "expiring" : isExpired ? "expired" : ""}>
+              <tr key={user.id} className={status === "expiring" ? "expiring" : status === "expired" ? "expired" : ""}>
                 <td>
                   <input 
                     type="checkbox" 
@@ -70,15 +84,13 @@ const UserTable = ({
                   />
                 </td>
                 <td>{user.id}</td>
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
+                <td>{user.firstname}</td>
+                <td>{user.lastname}</td>
                 <td>{user.phone || "-"}</td>
                 <td>{user.email}</td>
+                <td>{daysLeft > 0 ? `${daysLeft} дней` : "⛔ Истекла"}</td>
                 <td>
-                  {diffDays > 0 ? `${diffDays} дней` : "⛔ Истекла"}
-                </td>
-                <td>
-                  <StatusBadge status={isExpired ? "expired" : isExpiring ? "expiring" : "active"} />
+                  <StatusBadge status={status} />
                 </td>
                 <td className="actions">
                   <button 
@@ -95,7 +107,7 @@ const UserTable = ({
                       onBlur={(e) => {
                         if (e.target.value) {
                           onUpdateLicense(user.id, parseInt(e.target.value));
-                          e.target.value = ""; // очищаем поле
+                          e.target.value = "";
                         }
                       }}
                     />

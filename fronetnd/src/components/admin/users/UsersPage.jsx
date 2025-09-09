@@ -39,9 +39,9 @@ const UsersPage = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(user =>
-        user.firstName.toLowerCase().includes(term) ||
-        user.lastName.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
+        user.sdjfkhasiuf?.toLowerCase().includes(term) ||
+        user.lastname?.toLowerCase().includes(term) ||
+        user.email?.toLowerCase().includes(term) ||
         user.phone?.toLowerCase().includes(term)
       );
     }

@@ -6,7 +6,7 @@ export const setDB = (database) => {
 export const requireAdmin = async (req, res, next) => {
   try {
     if (!db) {
-      console.error('❌ База данных не инициализирована в requireAdmin');
+      console.error('База данных не инициализирована в requireAdmin');
       return res.status(500).json({ error: 'Ошибка сервера: БД не подключена' });
     }
 
@@ -14,15 +14,15 @@ export const requireAdmin = async (req, res, next) => {
       return res.status(401).json({ error: 'Пользователь не аутентифицирован' });
     }
 
-    const user = await db.get('SELECT isAdmin FROM users WHERE id = ?', [req.user.id]);
+    const user = await db.get('SELECT isadmin AS "isAdmin" FROM users WHERE id = $1', [req.user.id]);
 
-    if (!user || user.isAdmin !== 1) {
+    if (!user || user.isAdmin !== true) {
       return res.status(403).json({ error: 'Доступ запрещён. Требуются права администратора.' });
     }
 
     next();
   } catch (err) {
-    console.error('❌ Ошибка в requireAdmin:', err.message || err);
+    console.error('Ошибка в requireAdmin:', err.message || err);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 };

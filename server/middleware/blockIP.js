@@ -1,4 +1,3 @@
-// middleware/blockIP.js
 let db = null;
 
 export const setDB = (database) => {
@@ -10,14 +9,14 @@ export const blockIPMiddleware = async (req, res, next) => {
   const ip = rawIP?.replace('::ffff:', '') || 'unknown';
 
   if (!db) {
-    console.warn('⚠️ blockIPMiddleware: БД не подключена');
+    console.warn('blockIPMiddleware: БД не подключена');
     return next();
   }
 
   try {
     const blocked = await db.get(
       `SELECT reason, expiresAt FROM blocked_ips 
-       WHERE ip = ? AND (expiresAt IS NULL OR expiresAt > ?)`,
+    WHERE ip = $1 AND (expiresAt IS NULL OR expiresAt > $2)`,
       [ip, Date.now()]
     );
 
@@ -33,7 +32,7 @@ export const blockIPMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("❌ Ошибка проверки IP-блокировки:", err);
+    console.error("Ошибка проверки IP-блокировки:", err);
     next();
   }
 };

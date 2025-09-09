@@ -9,11 +9,10 @@ const LicenseDistributionChart = ({ stats }) => {
 
   // Используем твои реальные поля
   const data = [
-    { name: "Активные", value: stats.active || 0 },
-    { name: "Истекшие", value: stats.expired || 0 },
-    { name: "Всего", value: stats.total || 0 },
+    { name: "Активные", value: Number(stats.active) || 0 },
+    { name: "Истекшие", value: Number(stats.expired) || 0 },
+    { name: "Всего", value: Number(stats.total) || 0 },
   ];
-
   return (
     <div className="chart-card">
       <h3>📊 Распределение лицензий</h3>

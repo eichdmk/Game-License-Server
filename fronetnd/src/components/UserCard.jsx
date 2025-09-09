@@ -38,7 +38,7 @@ const UserCard = () => {
         <p><strong>Email:</strong> {user.email}</p>
         <p><strong>Телефон:</strong> {user.phone || "—"}</p>
         <p><strong>Лицензия до:</strong> {new Date(user.licenseEndDate).toLocaleString()}</p>
-        <p><strong>Админ:</strong> {user.isAdmin ? "✅ Да" : "❌ Нет"}</p>
+        <p><strong>Админ:</strong> {user.isAdmin ? "Да" : "Нет"}</p>
       </div>
 
       <h3>Логи входов</h3>
@@ -58,7 +58,7 @@ const UserCard = () => {
                 <td>{log.createdAt}</td>
                 <td>{log.ip}</td>
                 <td>{log.userAgent?.substring(0, 30)}...</td>
-                <td>{log.success ? "✅ Успешно" : "❌ Ошибка"}</td>
+                <td>{log.success ? "Успешно" : "Ошибка"}</td>
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,5 @@
-// routes/export.routes.js
 import express from 'express';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/authenticateToken.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 
 const router = express.Router();
@@ -24,7 +23,7 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
         email, 
         licenseEndDate,
         CASE 
-          WHEN licenseEndDate > ? THEN 'active' 
+          WHEN licenseEndDate > $1 THEN 'active' 
           ELSE 'expired' 
         END as status
       FROM users

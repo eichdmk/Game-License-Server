@@ -1,4 +1,3 @@
-// middleware/auth.js
 import jwt from 'jsonwebtoken';
 
 let db = null;
@@ -7,7 +6,6 @@ export const setDB = (database) => {
   db = database;
 };
 
-// Промисифицируем jwt.verify
 const verifyToken = (token, secret) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secret, (err, decoded) => {
@@ -33,7 +31,7 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     const user = await db.get(
-      'SELECT id, firstName, lastName, email, phone, isAdmin, licenseEndDate FROM users WHERE id = ?',
+      'SELECT id, firstName, lastName, email, phone, isadmin AS "isAdmin", licenseEndDate FROM users WHERE id = $1',
       [decoded.id]
     );
 

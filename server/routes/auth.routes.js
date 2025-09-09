@@ -1,8 +1,7 @@
-// routes/auth.routes.js
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/authenticateToken.js'
 import crypto from "crypto";
 
 const router = express.Router();
@@ -23,6 +22,7 @@ function createLicenseSignature(userId, licenseEndDate) {
     .digest("hex");
 }
 
+
 router.post('/login', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
   const userAgent = req.headers['user-agent'];
@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
   const logAttempt = async (success, userId = null) => {
     try {
       await db.run(
-        `INSERT INTO login_logs (userId, email, ip, success, userAgent, createdAt) VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO login_logs (userId, email, ip, success, userAgent, createdAt) VALUES ($1, $2, $3, $4, $5, $6)`,
         [userId, email, ip, success ? 1 : 0, userAgent, Date.now()]
       );
     } catch (err) {
@@ -48,7 +48,13 @@ router.post('/login', async (req, res) => {
 
     console.log('🔐 Попытка входа:', email, 'с IP:', ip);
 
-    const user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+    const user = await db.get(
+      `SELECT id, firstname AS "firstName", lastname AS "lastName", phone, email, password, licenseEndDate, isadmin AS "isAdmin"
+       FROM users
+       WHERE email = $1`,
+      [email]
+    );
+
     if (!user) {
       await logAttempt(false);
       return res.status(400).json({ error: 'Неверный email или пароль' });
@@ -63,8 +69,8 @@ router.post('/login', async (req, res) => {
     const now = Date.now();
     if (user.licenseEndDate <= now) {
       await logAttempt(false, user.id);
-      return res.status(403).json({ 
-        error: 'Срок вашей лицензии истёк. Обратитесь к администратору.' 
+      return res.status(403).json({
+        error: 'Срок вашей лицензии истёк. Обратитесь к администратору.'
       });
     }
 
@@ -88,11 +94,11 @@ router.post('/login', async (req, res) => {
     res.json({
       token,
       user: {
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         email: user.email,
         phone: user.phone,
-        isAdmin: !!user.isAdmin,
+        isAdmin: user.isAdmin,
         licenseLeftDays: Math.ceil((user.licenseEndDate - now) / 86400000)
       },
       offlineLicense: licenseData,
@@ -105,13 +111,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// --- Личный кабинет (с данными для оффлайн) ---
+
 router.get('/users/me', authenticateToken, async (req, res) => {
   try {
     const user = await db.get(
-      'SELECT id, firstName, lastName, email, phone, isAdmin, licenseEndDate FROM users WHERE id = ?',
+      `SELECT id, firstname AS "firstName", lastname AS "lastName", phone, email, password, licenseEndDate, isadmin AS "isAdmin"
+   FROM users
+   WHERE id = $1`,
       [req.user.id]
     );
+
+
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
 
     const now = Date.now();
@@ -133,7 +143,7 @@ router.get('/users/me', authenticateToken, async (req, res) => {
       lastName: user.lastName,
       email: user.email,
       phone: user.phone,
-      isAdmin: !!user.isAdmin,
+      isAdmin: !!user.isAdmin, 
       licenseEndDate: user.licenseEndDate,
       licenseLeftSeconds,
       licenseLeftDays,
@@ -149,7 +159,7 @@ router.get('/users/me', authenticateToken, async (req, res) => {
 router.get('/check-license', authenticateToken, async (req, res) => {
   try {
     const user = await db.get(
-      'SELECT id, email, licenseEndDate FROM users WHERE id = ?',
+      'SELECT id, email, licenseEndDate FROM users WHERE id = $1',
       [req.user.id]
     );
 

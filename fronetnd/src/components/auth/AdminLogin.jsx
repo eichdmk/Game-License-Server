@@ -28,7 +28,7 @@ const AdminLogin = () => {
 
       handleStatus("Вход выполнен успешно!");
 
-      // ✅ Проверка прав
+      // Проверка прав
       if (data.user.isAdmin) {
         navigate("/admin");
       } else {

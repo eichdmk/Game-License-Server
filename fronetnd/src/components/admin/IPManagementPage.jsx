@@ -43,9 +43,25 @@ const IPManagementPage = () => {
     }
   };
 
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "—";
+    const num = Number(timestamp);
+    if (isNaN(num)) return "—";
+    const date = new Date(num);
+    if (isNaN(date.getTime())) return "—";
+    return date.toLocaleString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
   const handleUnblockIP = async (ip) => {
     if (!window.confirm(`Разблокировать IP ${ip}?`)) return;
-    
+
     try {
       await unblockIP(ip);
       loadBlockedIPs();
@@ -118,15 +134,15 @@ const IPManagementPage = () => {
                 <tr key={ip.id}>
                   <td>{ip.ip}</td>
                   <td>{ip.reason}</td>
-                  <td>{new Date(ip.blockedAt).toLocaleString()}</td>
+                  <td>{formatTimestamp(ip.blockedat)}</td>
                   <td>
-                    {ip.expiresAt 
-                      ? new Date(ip.expiresAt).toLocaleString() 
+                    {ip.expiresat && ip.expiresat !== "null"
+                      ? formatTimestamp(ip.expiresat)
                       : "Навсегда"}
                   </td>
                   <td>
-                    <button 
-                      onClick={() => handleUnblockIP(ip.ip)} 
+                    <button
+                      onClick={() => handleUnblockIP(ip.ip)}
                       className="btn btn-danger"
                     >
                       Разблокировать

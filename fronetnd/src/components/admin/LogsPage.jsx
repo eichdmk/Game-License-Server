@@ -12,11 +12,36 @@ const LogsPage = () => {
     loadLogs();
   }, []);
 
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "—";
+    const num = parseInt(timestamp, 10);
+    if (isNaN(num)) return "—";
+    const date = new Date(num);
+    if (isNaN(date.getTime())) return "—";
+    return date.toLocaleString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
   const loadLogs = async () => {
     setLoading(true);
     try {
       const data = await getLoginLogs();
-      setLogs(data);
+
+      const formattedData = data.map(log => ({
+        ...log,
+        createdAt: formatTimestamp(log.createdat || log.createdAt), // приоритет — createdat
+        firstName: log.firstname || log.firstName || "—",
+        lastName: log.lastname || log.lastName || "—",
+        userAgent: log.useragent || log.userAgent || "—"
+      }));
+
+      setLogs(formattedData);
     } catch (error) {
       console.error("Error loading logs:", error);
     } finally {
@@ -29,10 +54,7 @@ const LogsPage = () => {
       <div className="page-header">
         <h1>🔐 Логи входов</h1>
         <div className="header-actions">
-          <button 
-            className="btn btn-primary" 
-            onClick={loadLogs}
-          >
+          <button className="btn btn-primary" onClick={loadLogs}>
             Обновить логи
           </button>
         </div>
@@ -68,10 +90,10 @@ const LogsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {logs.map((log) => (
+              {logs.map(log => (
                 <tr key={log.id} className={log.success ? "log_success" : "log_error"}>
                   <td>{log.createdAt}</td>
-                  <td>{log.firstName} {log.lastName}</td>
+                  <td>{log.firstname} {log.lastname}</td>
                   <td>{log.email}</td>
                   <td>{log.ip}</td>
                   <td>{log.userAgent?.substring(0, 30)}...</td>
